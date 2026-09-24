@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
-"""
-Cliente de administracion - Sistema de monitoreo y control distribuido
-Protocolo: SMDP/1.0
-
-Simula un cliente de administracion:
-  1. Resuelve el nombre del servidor por DNS.
-  2. Abre una conexion TCP, envia AUTH y recibe un token de sesion.
-  3. Envia QUERY para pedir el estado o el historial de un nodo y
-     muestra la respuesta.
-
-Uso:
-    python3 admin_client.py <host_servidor> <puerto> <usuario> <clave>
-"""
+"""Cliente de prueba para autenticarse y consultar un nodo."""
 
 import socket
 import sys
@@ -62,7 +50,7 @@ def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((ip, puerto))
 
-    # --- AUTH ---
+    # Autenticacion
     msg = construir_mensaje("AUTH", usuario, 1, "-", {"user": usuario, "pass": clave})
     s.sendall(msg.encode())
     resp = parsear_mensaje(s.recv(4096).decode())
@@ -75,7 +63,7 @@ def main():
     token = resp["token"]
     print(f"[AUTH] sesion iniciada, perfil={resp['payload']}, token={token}")
 
-    # --- QUERY de ejemplo: estado actual y luego historial de un nodo ---
+    # Consulta del estado actual y del historial
     nodo_objetivo = input("Nodo a consultar (ej. nodo-03): ").strip() or "nodo-03"
 
     for recurso, seq in (("status", 2), ("history", 3)):

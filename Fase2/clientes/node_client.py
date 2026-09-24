@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""
-Cliente de nodo - Sistema de monitoreo y control distribuido
-Protocolo: SMDP/1.0
-
-Simula un nodo de monitoreo:
-  1. Resuelve el nombre del servidor por DNS (getaddrinfo), con reintentos
-     con backoff (1, 2, 4, 8, 30 s) si la resolucion falla.
-  2. Abre una conexion TCP, envia REG y recibe REG_OK con un token.
-  3. Envia periodicamente STATUS por UDP usando ese token.
-  4. De vez en cuando simula un EVENT critico y espera el ACK del
-     servidor, reintentando hasta 3 veces si no llega a tiempo.
-
-Uso:
-    python3 node_client.py <host_servidor> <puerto> <id_nodo>
-"""
+"""Cliente de prueba para registrar un nodo y enviar sus datos."""
 
 import socket
 import sys
@@ -25,8 +11,7 @@ VERSION = "SMDP/1.0"
 
 
 def resolver_host(host):
-    """Resuelve el nombre del servidor con reintentos y backoff, sin
-    dejar caer el programa si la resolucion falla."""
+    """Resuelve el servidor y reintenta si el nombre no esta disponible."""
     esperas = [1, 2, 4, 8, 30]
     intento = 0
     while True:
@@ -57,7 +42,7 @@ def parsear_mensaje(linea):
 
 
 def registrar_nodo(ip, puerto, id_nodo):
-    """Abre TCP, envia REG y devuelve el token asignado por el servidor."""
+    """Registra el nodo y devuelve el token asignado."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, puerto))
         msg = construir_mensaje("REG", id_nodo, 1, "-",

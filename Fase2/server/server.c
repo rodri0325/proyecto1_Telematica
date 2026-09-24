@@ -1,18 +1,5 @@
-/*
- * Servidor central - Sistema de monitoreo y control distribuido
- * Protocolo: SMDP/1.0
- *
- * Implementa:
- *   - Un socket TCP (REG, AUTH, QUERY) con un hilo por conexion.
- *   - Un socket UDP (STATUS, EVENT -> ACK) atendido en un hilo separado.
- *   - Tablas en memoria de nodos, sesiones y usuarios, protegidas con mutex.
- *   - Logging a consola y a archivo (parametro de linea de comandos).
- *
- * Uso: ./servidor <puerto> <archivo_de_logs>
- *
- * Solo usa la API de sockets Berkeley (sys/socket.h) segun lo exigido
- * por el enunciado del proyecto.
- */
+/* Servidor central del protocolo SMDP/1.0.
+ * Uso: ./servidor <puerto> <archivo_de_logs> */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,9 +20,7 @@
 #define BUF_TAM      4096
 #define TOKEN_LEN      17   /* 16 caracteres hex + '\0' */
 
-/* ---------------------------------------------------------------------
- * Estructuras de datos
- * --------------------------------------------------------------------- */
+/* Estructuras de datos */
 
 typedef struct {
     int    cpu;
@@ -80,10 +65,7 @@ static pthread_mutex_t lock_sesiones = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t lock_log = PTHREAD_MUTEX_INITIALIZER;
 static FILE *archivo_log = NULL;
 
-/* Tabla de usuarios de demostracion para la Fase 2.
- * NOTA: segun el diseno, esto se debe reemplazar en una fase posterior
- * por una consulta a un servicio de identidad separado (no se guardan
- * las credenciales del sistema real aqui, solo datos de prueba). */
+/* Usuarios de prueba de esta fase. */
 static Usuario usuarios[MAX_USUARIOS] = {
     {"juan",  "1234", "ADMIN"},
     {"maria", "1234", "VISOR"}
@@ -92,9 +74,7 @@ static int num_usuarios = 2;
 
 static int udp_sock_global = -1;
 
-/* ---------------------------------------------------------------------
- * Utilidades generales
- * --------------------------------------------------------------------- */
+/* Utilidades generales */
 
 static void generar_token(char *out) {
     static const char hexd[] = "0123456789abcdef";
@@ -125,7 +105,7 @@ static void log_evento(const char *transporte, const char *ip, int puerto,
     pthread_mutex_unlock(&lock_log);
 }
 
-/* Extrae un entero de un fragmento JSON muy simple: busca "clave":valor */
+/* Extrae un entero del JSON recibido. */
 static int json_extraer_int(const char *json, const char *clave, int *out) {
     char patron[64];
     snprintf(patron, sizeof(patron), "\"%s\"", clave);
@@ -152,7 +132,7 @@ static int json_extraer_double(const char *json, const char *clave, double *out)
     return 1;
 }
 
-/* Extrae un valor string ("clave":"valor") sin comillas en out. */
+/* Extrae un valor de texto del JSON recibido. */
 static int json_extraer_str(const char *json, const char *clave, char *out, size_t len) {
     char patron[64];
     snprintf(patron, sizeof(patron), "\"%s\"", clave);
@@ -172,9 +152,7 @@ static int json_extraer_str(const char *json, const char *clave, char *out, size
     return 1;
 }
 
-/* Divide un mensaje SMDP/1.0|TIPO|ORIGEN|SEQ|TIMESTAMP|TOKEN|PAYLOAD en
- * hasta 7 campos. Los primeros 6 se separan por '|'; el septimo (payload)
- * conserva el resto de la linea tal cual, por si llegara a tener '|'. */
+/* Divide el mensaje en seis campos y conserva el resto como payload. */
 static int dividir_mensaje(char *linea, char *campos[7]) {
     int n = 0;
     char *inicio = linea;
@@ -240,9 +218,7 @@ static void agregar_muestra(Nodo *n, int cpu, double temp, int battery, const ch
     if (n->hist_count < MAX_HIST) n->hist_count++;
 }
 
-/* ---------------------------------------------------------------------
- * Hilo del socket TCP: atiende REG, AUTH y QUERY
- * --------------------------------------------------------------------- */
+/* Hilo TCP: atiende REG, AUTH y QUERY. */
 
 typedef struct {
     int fd;
@@ -266,7 +242,7 @@ static void *manejar_cliente_tcp(void *arg) {
     int usados = 0;
 
     for (;;) {
-        /* Leer hasta encontrar '\n' o cerrar la conexion */
+        /* Leer una linea completa. */
         char *nl = memchr(buffer, '\n', usados);
         if (!nl) {
             ssize_t leidos = recv(fd, buffer + usados, sizeof(buffer) - 1 - usados, 0);
@@ -288,7 +264,7 @@ static void *manejar_cliente_tcp(void *arg) {
         memcpy(linea, buffer, largo_linea);
         linea[largo_linea] = '\0';
 
-        /* desplazar lo que sobro despues del '\n' al inicio del buffer */
+        /* Conservar los datos que siguen a la linea actual. */
         int resto = usados - (largo_linea + 1);
         if (resto > 0) memmove(buffer, nl + 1, resto);
         usados = resto > 0 ? resto : 0;
@@ -443,9 +419,7 @@ static void *manejar_cliente_tcp(void *arg) {
     return NULL;
 }
 
-/* ---------------------------------------------------------------------
- * Hilo del socket UDP: atiende STATUS y EVENT
- * --------------------------------------------------------------------- */
+/* Hilo UDP: atiende STATUS y EVENT. */
 
 static void *escuchar_udp(void *arg) {
     (void) arg;

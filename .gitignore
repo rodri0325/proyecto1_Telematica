@@ -1,0 +1,8 @@
+# Ejecutables locales, archivos temporales y registros de laboratorio
+Fase3/server/servidor
+Fase3/server/identidad
+Fase3/clientes/.pending/
+**/__pycache__/
+*.pyc
+*.log
+Fase3/evidencias_locales/

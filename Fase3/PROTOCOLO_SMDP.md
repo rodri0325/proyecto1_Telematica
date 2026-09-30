@@ -109,6 +109,7 @@ Es un **proceso diferente del servidor principal**, escrito en C, en el puerto c
 | Token de nodo inválido | `ERROR NODE_NOT_REGISTERED`. |
 | Sesión inválida o vencida | `ERROR UNAUTHORIZED` (vencimiento a los 30 minutos en esta versión). |
 | Cola UDP saturada | Descartar datagrama con log; el nodo reintenta EVENT al no recibir ACK. |
+| Solicitud incompleta al servicio de identidad | Esperar hasta dos segundos, responder `DENIED` y cerrar esa conexión. |
 | Archivo de logs inaccesible | Advertencia en consola; servicio continúa. |
 
 ## 6. Log y concurrencia
@@ -124,7 +125,7 @@ Cada solicitud y respuesta se registra con fecha, transporte, IP y puerto del ot
 ## 7. Limitaciones y no objetivos de esta entrega
 
 1. **Memoria volátil:** historial (5 muestras) y eventos (32 por nodo) permanecen en RAM. La deduplicación abarca las **64 secuencias recientes** por nodo. Una caída con reinicio del servidor no conserva ese historial/eventos; la persistencia duradera e identificadores de evento globales son trabajo futuro. Por ello, esta entrega no promete entrega exactamente una vez ante reinicios.
-2. **Laboratorio:** no implementa TLS, cifrado de UDP, autenticación criptográfica de paquetes ni gestión de usuarios de producción. La identidad usa dos cuentas ficticias; únicamente para laboratorio local o red aislada. No desplegar en Internet.
+2. **Laboratorio:** no implementa TLS, cifrado de UDP, autenticación criptográfica de paquetes ni gestión de usuarios de producción. La identidad usa tres cuentas ficticias (`juan`, `maria` y `david_rodriguez_espinosa`); únicamente para laboratorio local o red aislada. No desplegar en Internet.
 3. **Compatibilidad:** el parser de solicitudes admite solo objetos JSON planos de cadenas o números y los identificadores definidos arriba. Es una restricción explicitada para la versión implementada; no pretende ser un parser JSON universal.
 4. **Demo visual:** el cliente de terminal imprime JSON legible; la GUI se menciona como recomendación, no obligación, en el enunciado.
 5. **Simulación:** `SMDP_DROP_FIRST_ACK=1` descarta deliberadamente el primer ACK de cada nuevo EVENT para demostrar la recuperación. Mantener esta bandera desactivada en ejecuciones habituales.

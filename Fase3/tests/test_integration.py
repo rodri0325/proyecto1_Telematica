@@ -128,6 +128,9 @@ class ServerIntegration(unittest.TestCase):
 
     def test_03_auth_roles_and_unknown_node(self):
         self.assertEqual(self.login("juan","incorrecta")["kind"],"AUTH_ERR")
+        david=self.login("david_rodriguez_espinosa")
+        self.assertEqual(david["kind"],"AUTH_OK")
+        self.assertEqual(david["data"]["profile"],"ADMIN")
         visor=self.login("maria")
         self.assertEqual(visor["kind"],"AUTH_OK")
         forbidden=self.request("QUERY","maria",2,visor["token"],{"resource":"nodes"})
@@ -158,8 +161,11 @@ class ServerIntegration(unittest.TestCase):
                 self.assertEqual(recv_frame(reader)["data"]["code"],"MALFORMED_MESSAGE")
                 s.sendall(b'A'*4100+b'\n')
                 self.assertEqual(recv_frame(reader)["data"]["code"],"MALFORMED_MESSAGE")
+                s.sendall(b'A'*4096+b'\n'+message("BOGUS","framed-node",6,"-",{}))
+                self.assertEqual(recv_frame(reader)["data"]["code"],"MALFORMED_MESSAGE")
+                self.assertEqual(recv_frame(reader)["data"]["code"],"UNKNOWN_TYPE")
                 # servidor debe continuar tras errores.
-                s.sendall(message("AUTH","juan",5,"-",{"user":"juan","pass":"1234"}))
+                s.sendall(message("AUTH","juan",7,"-",{"user":"juan","pass":"1234"}))
                 self.assertEqual(recv_frame(reader)["kind"],"AUTH_OK")
 
     def test_05_udp_unknown_node_and_invalid_metric(self):
@@ -176,6 +182,13 @@ class ServerIntegration(unittest.TestCase):
             sock.sendall(b"SMDP/1.0|AUTH|juan|")
             # Corte repentino en mitad de una petición.
         self.assertEqual(self.login()["kind"],"AUTH_OK")
+
+    def test_10_identity_incomplete_request_times_out(self):
+        with socket.create_connection(("localhost",self.identity_port),timeout=4) as sock:
+            sock.settimeout(4)
+            sock.sendall(b"IDENT/1|juan|")
+            response=sock.makefile("rb").readline()
+        self.assertEqual(response,b"DENIED\n")
 
     def test_07_invalid_udp_datagram(self):
         response=self.udp(b"SMDP/1.0|STATUS|nodo|abc|1|-|{}\n")

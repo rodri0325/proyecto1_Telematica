@@ -56,7 +56,7 @@ Nodo B ---- TCP/UDP ------------------>     v  |
 1. Compilar con `make` y mostrar que hay dos ejecutables en C (`servidor`, `identidad`).
 2. Iniciar la identidad y el servidor con el puerto y el archivo de logs por argumentos.
 3. Ejecutar dos nodos casi al mismo tiempo; explicar REG por TCP, STATUS por UDP, EVENT por UDP.
-4. Autenticar con `juan` y consultar ambos nodos, con historial de cinco muestras y eventos; probar además `maria` al intentar `nodes`.
+4. Autenticar con `juan` o `david_rodriguez_espinosa` y consultar ambos nodos, con historial de cinco muestras y eventos; probar además `maria` al intentar `nodes`.
 5. Demostrar la pérdida del ACK activando la bandera de prueba (requiere reiniciar el servidor y re-registrar nodos).
 6. Mostrar las pruebas automáticas: `python3 -m unittest discover -s tests -v`.
 

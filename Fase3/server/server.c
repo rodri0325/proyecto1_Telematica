@@ -318,7 +318,7 @@ static void *tcp_worker(void *arg) {
         if(n<=0)break;
         for(ssize_t i=0;i<n;i++) {
             if(discard) {if(chunk[i]=='\n'){discard=0;used=0;}continue;}
-            if(used>=SMDP_MAX_FRAME){tcp_error(c,"0","MALFORMED_MESSAGE");discard=1;used=0;continue;}
+            if(used>=SMDP_MAX_FRAME){tcp_error(c,"0","MALFORMED_MESSAGE");discard=chunk[i]!='\n';used=0;continue;}
             line[used++]=chunk[i];
             if(chunk[i]=='\n') {
                 line[--used]=0;

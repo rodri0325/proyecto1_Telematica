@@ -10,14 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 typedef struct {int fd;} Client;
 static const struct {const char *user,*password,*profile;} users[]={
-    {"juan","1234","ADMIN"},{"maria","1234","VISOR"}
+    {"juan","1234","ADMIN"},{"maria","1234","VISOR"},
+    {"david_rodriguez_espinosa","1234","ADMIN"}
 };
 static void *handle(void *arg) {
     Client *c=arg;char request[200];int pos=0;
+    struct timeval timeout={.tv_sec=2,.tv_usec=0};
+    setsockopt(c->fd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof(timeout));
     while(pos<(int)sizeof(request)-1){ssize_t n=recv(c->fd,request+pos,1,0);
         if(n!=1)break;
         if(request[pos++]=='\n')break;

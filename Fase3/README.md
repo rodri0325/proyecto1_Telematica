@@ -69,9 +69,9 @@ python3 admin_client.py localhost 6000 juan --node nodo-01 --resource all
 python3 admin_client.py localhost 6000 juan --node nodo-02 --resource all
 ```
 
-El cliente pide la contraseña mediante `getpass`; para los usuarios ficticios `juan` (ADMIN) y `maria` (VISOR), la contraseña de **laboratorio** es `1234`. La salida administrativa incluye estado instantáneo, cinco muestras de historial y eventos aceptados.
+El cliente pide la contraseña mediante `getpass`; las cuentas ficticias de laboratorio usan la clave `1234`: `juan` (ADMIN), `maria` (VISOR) y `david_rodriguez_espinosa` (ADMIN, David Rodriguez Espinosa). La salida administrativa incluye estado instantáneo, cinco muestras de historial y eventos aceptados.
 
-**Roles:** ejecutar `python3 admin_client.py localhost 6000 maria --resource nodes`; debe devolver `UNAUTHORIZED`, mientras que con `juan` se permite el listado (sin necesitar `--node`).
+**Roles:** ejecutar `python3 admin_client.py localhost 6000 maria --resource nodes`; debe devolver `UNAUTHORIZED`, mientras que con `juan` o `david_rodriguez_espinosa` se permite el listado (sin necesitar `--node`).
 
 ## 3. Pruebas automáticas
 

@@ -35,6 +35,12 @@ python3 admin_client.py localhost 6000 juan --node nodo-01 --resource all
 
 La clave de **demostración** de `juan` es `1234`, solicitada mediante prompt. `maria` utiliza la misma clave y tiene perfil `VISOR`.
 
+Las cuentas ficticias de laboratorio son:
+
+- `juan` / `1234` — ADMIN
+- `david_rodriguez_espinosa` / `1234` — ADMIN
+- `maria` / `1234` — VISOR
+
 ## Pruebas
 
 ```bash

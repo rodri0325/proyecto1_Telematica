@@ -134,7 +134,7 @@ No subir contraseñas reales, tokens ni registros de redes privadas sin revisar.
 
 ## 7. Limitaciones demostrables (no ocultar en la sustentación)
 
-- **Autenticación de laboratorio:** el servicio separado incluye dos usuarios ficticios codificados. No hay TLS, LDAP ni identidades reales. No desplegar en Internet.
+- **Autenticación de laboratorio:** el servicio separado incluye tres usuarios ficticios codificados. No hay TLS, LDAP ni identidades reales. No desplegar en Internet.
 - **Persistencia:** las cinco muestras y los últimos 32 eventos de cada nodo residen en RAM. Los eventos del **cliente** sin ACK se guardan en disco local en `clientes/.pending/`, pero el servidor no es una base de datos duradera; la entrega exactamente una vez ante fallos/reinicios no está garantizada.
 - **Capacidad:** máximo 64 nodos, 64 sesiones simultáneas y 32 eventos consultables por nodo; deduplicación de las 64 secuencias recientes por nodo. `QUERY nodes` admite `limit` y `offset`.
 - **Interfaz:** se usa terminal con JSON legible. El enunciado recomienda, pero no exige, GUI.
